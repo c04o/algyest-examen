@@ -3,7 +3,7 @@ from collections import deque
 class AlcaldiaGestionTramites:
     def __init__(self):
         self.cola = deque()  # Cola para ciudadanos en espera: tuplas (nombre, tramite)
-        self.historial = {}  # Diccionario: {nombre_ciudadano: [lista_de_tramites_completados]}
+        self.historial = {}  # Diccionario: {nombre_ciudadano: deque()} para pila LIFO
 
     def agregar_ciudadano(self, nombre, tramite):
         """
@@ -14,15 +14,15 @@ class AlcaldiaGestionTramites:
 
     def atender_siguiente(self):
         """
-        Atiende al siguiente ciudadano en la cola, registra el trámite en su historial y lo elimina de la cola.
+        Atiende al siguiente ciudadano en la cola, registra el trámite en su pila de historial y lo elimina de la cola.
         """
         if not self.cola:
             print("No hay ciudadanos en la cola.")
             return
         nombre, tramite = self.cola.popleft()
         if nombre not in self.historial:
-            self.historial[nombre] = []
-        self.historial[nombre].append(tramite)
+            self.historial[nombre] = deque()  # Inicializar pila para el ciudadano
+        self.historial[nombre].append(tramite)  # Apilar trámite (LIFO)
         print(f"Atendido ciudadano '{nombre}' para el trámite '{tramite}'. Trámite registrado como completado.")
 
     def mostrar_cola(self):
@@ -38,11 +38,11 @@ class AlcaldiaGestionTramites:
 
     def ver_historial(self, ciudadano):
         """
-        Muestra el historial de trámites de un ciudadano, del más reciente al más antiguo.
+        Muestra el historial de trámites de un ciudadano, del más reciente al más antiguo (LIFO).
         """
         if ciudadano in self.historial and self.historial[ciudadano]:
             print(f"\nHistorial de trámites de {ciudadano}:")
-            for i, tramite in enumerate(reversed(self.historial[ciudadano]), 1):
+            for i, tramite in enumerate(self.historial[ciudadano], 1):  # Mostrar en orden LIFO
                 print(f"   {i}. {tramite}")
         else:
             print(f"No hay historial de trámites para {ciudadano}.")
